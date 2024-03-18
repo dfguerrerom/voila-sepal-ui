@@ -1,0 +1,80 @@
+{% raw -%}
+<div id="app" style="display: none">
+    <v-app >
+        <v-slide-y-transition>
+            <v-layout v-show="loading" align-center justify-center>
+                <v-card style="min-width: 600px">
+                    <v-progress-linear
+                            :indeterminate="loadingPercentage < 0"
+                            v-model="loadingPercentage"
+                            height="15"
+                    ></v-progress-linear>
+
+                    <v-card-title primary-title class="py-8">
+                        <h1>{{ loading_text }}</h1>
+                    </v-card-title>
+                </v-card>
+            </v-layout>
+        </v-slide-y-transition>
+        <v-slide-y-transition>
+            <v-layout v-if="voilaDebugMessages.length == 0" v-show="!loading">
+                    <jupyter-widget-mount-point mount-id="content">
+                        A widget with mount-id="content" should go here
+                    </jupyter-widget-mount-point>
+            </v-layout>
+            <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
+                <!-- hide jupyter-widget-mount-point -->
+    
+                <v-card-title primary-title class="py-8">
+                    <h1>Ooops! something went wrong</h1>
+                </v-card-title>
+                <v-card-text>
+                    <v-alert
+                    color="gray"
+                    dark
+                    icon="mdi-bug"
+                  >
+
+                        <p v-for="(msg, index) in voilaDebugMessages[0].traceback" :key="index" v-html="msg">
+                        </p>
+                        
+                  </v-alert>
+                </v-card-text>
+            </v-card>
+        </v-slide-y-transition>
+    </v-app>
+</div>
+
+<script>
+
+var app = new Vue({
+    vuetify: new Vuetify({
+        theme: { dark: true },
+    }),
+    el: '#app',
+    mounted() {
+        document.querySelector('#app').removeAttribute("style");
+    },
+    data() {
+        return {
+            loading_text: "Loading page",
+            loadingPercentage: -1,
+            loading: true,
+            title: "",
+            voilaDebugMessages: []
+        }
+    },
+    computed: {
+        concatenatedTracebacks() {
+            return this.voilaDebugMessages.map(msg => {
+                // Clone the msg object to avoid mutating the original data
+                const clonedMsg = { ...msg };
+                return clonedMsg;
+            });
+        }
+    }
+
+});
+
+</script>
+{% endraw -%}
