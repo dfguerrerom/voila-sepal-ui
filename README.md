@@ -15,3 +15,7 @@ pip install .
 ## Usage
 
 To use the `sepal-ui` template, just pass `--template=sepal-ui-base` to the `voila` command line.
+
+```
+voila app.ipynb --template=vuetify-base --show_tracebacks=True
+```
