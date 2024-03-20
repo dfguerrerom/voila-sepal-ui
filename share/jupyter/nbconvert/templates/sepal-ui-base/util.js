@@ -44,6 +44,11 @@ Vue.component('jupyter-widget-mount-point', {
 const widgetResolveFns = {};
 const widgetPromises = {};
 
+
+// // Global debug flag
+let debug = true;
+
+
 function provideWidget(mountId, widgetView) {
     if (widgetResolveFns[mountId]) {
         widgetResolveFns[mountId](widgetView);
@@ -117,7 +122,7 @@ function getWidgetManager(voila, kernel) {
 function injectDebugMessageInterceptor(kernel) {
     const _original_handle_message = kernel._handleMessage.bind(kernel)
     kernel._handleMessage = ((msg) => {
-        if (msg.msg_type === 'error') {
+        if (msg.msg_type === 'error' && debug) {
             app.$data.voilaDebugMessages.push({
                 cell: '_',
                 traceback: msg.content.traceback.map(line => ansiSpan(_.escape(line)))
@@ -129,9 +134,20 @@ function injectDebugMessageInterceptor(kernel) {
                 text: msg.content.text
             });
         }
-        return _original_handle_message(msg);
+                return _original_handle_message(msg);
     })
 }
+
+function injectStatusInterceptor(kernel) {
+    const _original_update_status = kernel._updateStatus.bind(kernel)
+
+    kernel._updateStatus = ((state) => {
+        console.log(state)
+        app.$data.kernel_status = state;
+        return _original_update_status(state);
+    })
+}
+
 
 var themeIsdark;
 if ('{{resources.theme}}' === 'dark') {
@@ -146,11 +162,12 @@ if (window.location.search) {
 }
 
 window.init = async (voila) => {
-    define("vue", [], () => Vue);
+        define("vue", [], () => Vue);
     define("vuetify", [], { framework: app.$vuetify });
-
+    
     const kernel = await voila.connectKernel();
     injectDebugMessageInterceptor(kernel);
+    injectStatusInterceptor(kernel);
     window.addEventListener('beforeunload', () => kernel.shutdown());
 
     const widgetManager = getWidgetManager(voila, kernel);
@@ -184,7 +201,7 @@ window.init = async (voila) => {
     }
 
     app.$data.loadingPercentage = -1;
-    app.$data.loading_text = 'Loading your app';
+    app.$data.loading_text = 'Loading the app';
 
     await widgetManager.build_widgets();
 
@@ -210,11 +227,15 @@ window.init = async (voila) => {
     removeInterferingStyleTags();
 
     const urlParams = new URLSearchParams(window.location.search);
-    app.$data.debug = urlParams.has('debug')
     if (window['voilaDebugMessages']) {
         app.$data.voilaDebugMessages = window['voilaDebugMessages'];
     }
     setTimeout(voila.renderMathJax);
+
+    // I want to stop the debug messages after the app is loaded, they 
+    // will be handled by the app from now on
+    debug = false;
+
 };
 
 function removeInterferingStyleTags() {

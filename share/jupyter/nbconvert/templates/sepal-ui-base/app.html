@@ -1,80 +1,161 @@
 {% raw -%}
 <div id="app" style="display: none">
-    <v-app >
-        <v-slide-y-transition>
-            <v-layout v-show="loading" align-center justify-center>
-                <v-card style="min-width: 600px">
-                    <v-progress-linear
-                            :indeterminate="loadingPercentage < 0"
-                            v-model="loadingPercentage"
-                            height="15"
-                    ></v-progress-linear>
-
-                    <v-card-title primary-title class="py-8">
-                        <h1>{{ loading_text }}</h1>
-                    </v-card-title>
-                </v-card>
-            </v-layout>
-        </v-slide-y-transition>
-        <v-slide-y-transition>
-            <v-layout v-if="voilaDebugMessages.length == 0" v-show="!loading">
-                    <jupyter-widget-mount-point mount-id="content">
-                        A widget with mount-id="content" should go here
-                    </jupyter-widget-mount-point>
-            </v-layout>
-            <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
-                <!-- hide jupyter-widget-mount-point -->
+  <v-app>
+    <template>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn v-bind="attrs" v-on="on" text style="position: fixed; bottom: 8px; right: 8px">
+            <span>{{ statusName }}</span>
+            <!-- Use dynamic class binding to change text color based on status -->
+            <span :style="{ color: statusColor }"></span>
+            <!-- Dynamically change icon color based on status -->
+            <v-icon small right large :color="statusColor">mdi-circle</v-icon>
+          </v-btn>
+        </template>
+        <!-- Tooltip text dynamically updated based on statusName -->
+        <span>{{ statusName }}</span>
+      </v-tooltip>
+    </template>
     
-                <v-card-title primary-title class="py-8">
-                    <h1>Ooops! something went wrong</h1>
-                </v-card-title>
-                <v-card-text>
-                    <v-alert
-                    color="gray"
-                    dark
-                    icon="mdi-bug"
-                  >
+    
+      <v-layout v-show="loading" align-center justify-center>
+        <center>
+        <v-card style="min-width: 600px">
+          <v-progress-linear
+            indeterminate="true"
+            height="15"
+          ></v-progress-linear>
+          <!-- <v-card-title primary-title class="py-8"> -->
+            <h1>Loading the module</h1>
+            <h2>{{ loading_text }}</h2>
+          <!-- </v-card-title> -->
+          <img
+            :src="imageUrl"
+            alt="SEPAL loading"
+            align-center
+            justify-center
+          />
+          </center>
+        </v-card>
+      </v-layout>
 
-                        <p v-for="(msg, index) in voilaDebugMessages[0].traceback" :key="index" v-html="msg">
-                        </p>
-                        
-                  </v-alert>
-                </v-card-text>
-            </v-card>
-        </v-slide-y-transition>
-    </v-app>
+      <v-layout v-if="voilaDebugMessages.length == 0" v-show="!loading">
+        <jupyter-widget-mount-point mount-id="content">
+        </jupyter-widget-mount-point>
+      </v-layout>
+
+      <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
+        <v-card-title primary-title class="py-8">
+          <h1>Ooops! something went wrong</h1>
+        </v-card-title>
+
+        <v-card-text>
+          <template>
+            <div>
+              <!-- Alert showing the first computed property -->
+              <v-alert
+                type="error"
+                icon="mdi-bug"
+                border="left"
+                colored-border
+                width="60%"
+                align-center
+                justify-center
+              >
+                >{{summaryMessages}}
+              </v-alert>
+
+              <!-- Button to open dialog -->
+              <v-btn color="primary" @click="dialog = true">Show Details</v-btn>
+
+              <!-- Dialog showing the second computed property -->
+              <v-dialog v-model="dialog" persistent max-width="720px">
+                <v-card color="">
+                  <v-card-title>
+                    Full traceback
+                    <v-spacer></v-spacer>
+                    <v-btn icon @click="dialog = false">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </v-card-title>
+                  <v-card-text>
+                    <p
+                      v-for="(msg, index) in detailedMessages"
+                      :key="index"
+                      v-html="msg"
+                      icon="mdi-bug"
+                    ></p>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </div>
+          </template>
+        </v-card-text>
+      </v-card>
+  </v-app>
 </div>
 
 <script>
-
-var app = new Vue({
+  var app = new Vue({
     vuetify: new Vuetify({
-        theme: { dark: true },
+      theme: { dark: true },
     }),
-    el: '#app',
+    el: "#app",
     mounted() {
-        document.querySelector('#app').removeAttribute("style");
+      document.querySelector("#app").removeAttribute("style");
     },
     data() {
-        return {
-            loading_text: "Loading page",
-            loadingPercentage: -1,
-            loading: true,
-            title: "",
-            voilaDebugMessages: []
-        }
+      return {
+        loading_text: "0%",
+        loadingPercentage: -1,
+        loading: true,
+        title: "",
+        voilaDebugMessages: [],
+        base_url: "",
+        dialog: false,
+        kernel_status: "idle",
+      };
     },
     computed: {
-        concatenatedTracebacks() {
-            return this.voilaDebugMessages.map(msg => {
-                // Clone the msg object to avoid mutating the original data
-                const clonedMsg = { ...msg };
-                return clonedMsg;
-            });
+      imageUrl() {
+        // Assuming the Vuetify theme dark status is accessible
+        // via this.$vuetify.theme.dark
+        return this.$vuetify.theme.dark
+          ? this.base_url + "voila/static/loading_dark.gif"
+          : this.base_url + "voila/static/loading_light.gif";
+      },
+      summaryMessages() {
+        return this.voilaDebugMessages[0].evalue;
+      },
+      detailedMessages() {
+        return this.voilaDebugMessages[0].traceback;
+      },
+      statusColor() {
+        switch (this.kernel_status) {
+          case 'busy':
+            return 'orange';
+          case 'dead':
+            return 'red';
+          case 'idle':
+            return 'green';
+          default:
+            return 'grey'; // Default color
         }
-    }
+      },
+      // Compute the status name for the tooltip
+      statusName() {
+        switch (this.kernel_status) {
+          case 'busy':
+            return 'Busy';
+          case 'dead':
+            return 'Disconnected';
+          case 'idle':
+            return 'Ready';
+          default:
+            return 'Unknown'; // Default status name
+        }
+      },
 
-});
-
+    },
+  });
 </script>
-{% endraw -%}
