@@ -2,7 +2,7 @@
 {% block notebook_execute %}
 
 {%- set kernel_id = kernel_start(nb) -%}
-    <script id="jupyter-config-data" type="application/json">
+<script id="jupyter-config-data" type="application/json">
         {
             "baseUrl": "{{resources.base_url}}",
             "kernelId": "{{kernel_id}}"
@@ -11,46 +11,47 @@
 {% endblock notebook_execute %}
 
 {% block cell_generator %}
-    <script>
+<script>
     app.title = "{{nb_title}}"
-        
-        var voila_process = function(cell_index, cell_count) {
-            const loading_text = `Executing cell ${cell_index} of ${cell_count}`
-            console.log(loading_text)
-            app.loading_text = loading_text
-            app.loadingPercentage = cell_index / cell_count * 100
-        }
-    </script>
-    {% for cell in cell_generator(nb, kernel_id) %}
-        <script>
-            voila_process({{ loop.index }}, {{ cell_count }});
-        </script>
 
-        {% if cell.cell_type == 'code' %}
-            {% for output in cell.outputs %}
-                {% if output.output_type == 'error' %}
-                {# Create a console log #}
-                    <script>
-                    console.log({{ cell.execution_count }})
-                    console.log({{ output }})
-                    console.log(window['voilaDebugMessages'])
-                        if (!window['voilaDebugMessages']) {
-                            window.voilaDebugMessages = [];
-                        }
-                        window.voilaDebugMessages.push({
-                            cell: {{ cell.execution_count }},
-                            traceback: [
-                                {% for line in output.traceback  %}
-                                {# `{{ line | ansi2html }}`, #}
-                                `{{ line | ansi2html | replace('`', '\\`') }}`,
-                                
+    var voila_process = function (cell_index, cell_count) {
+        const percentage = Math.round((cell_index / cell_count) * 100);
+        const loading_text = `${percentage}%`
+        app.loading_text = loading_text
+        app.loadingPercentage = percentage
+        app.debug = true
+    }
+</script>
+{% for cell in cell_generator(nb, kernel_id) %}
+<script>
+    voila_process({{ loop.index }}, {{ cell_count }});
+</script>
 
-                                {% endfor %}
-                            ]
+{% if cell.cell_type == 'code' %}
+{% for output in cell.outputs %}
+{% if output.output_type == 'error' %}
+{# Create a console log #}
+<script>
+    console.log({{ cell.execution_count }})
+    console.log({{ output }})
+    console.log(window['voilaDebugMessages'])
+    if (!window['voilaDebugMessages']) {
+        window.voilaDebugMessages = [];
+    }
+    window.voilaDebugMessages.push({
+        cell: {{ cell.execution_count }},
+        traceback: [
+        {% for line in output.traceback %}
+    `{{ line | ansi2html | replace('`', '\\`') }}`,
+        {% endfor %}
+                            ],
+    evalue: `{{ output.ename }}: {{ output.evalue | ansi2html | replace('`', '\\`') }}`
                         })
-                    </script>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
+    console.log(window['voilaDebugMessages'])
+
+</script>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
 {% endblock cell_generator %}
