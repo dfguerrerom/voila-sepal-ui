@@ -1,78 +1,80 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vuetify@2.2.26/dist/vuetify.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/vuetify@2.2.26/dist/vuetify.min.css" rel="stylesheet">
-        <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
-        <link href='https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css' rel="stylesheet">
-        {# Custom sepal_ui scripts #}
-        <script src='{{resources.base_url}}voila/static/jupyter-embed.js'></script>
-        <script src='{{resources.base_url}}voila/static/jupyter-fullscreen.js'></script>
-        <script src='{{resources.base_url}}voila/static/jupyter-resize.js'></script>
-        <script src='{{resources.base_url}}voila/static/jupyter-clip.js'></script>
-        {# Custom  css styles#}
-        <link href='{{resources.base_url}}voila/static/sepal_ui_styles.css' rel="stylesheet">
-        <link href='{{resources.base_url}}voila/static/index.css' rel="stylesheet">
-{% if resources.theme == 'dark' %}
-        <link href='{{resources.base_url}}voila/static/theme-dark.css' rel="stylesheet">
-{% else %}
-        <link href='{{resources.base_url}}voila/static/theme-light.css' rel="stylesheet">
-{% endif %}
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
-        <script src="{{resources.base_url}}voila/static/require.min.js" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" crossorigin="anonymous"></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.2.26/dist/vuetify.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.2.26/dist/vuetify.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+    <link href='https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css' rel="stylesheet">
+    {# Custom sepal_ui scripts #}
+    <script src='{{resources.base_url}}voila/static/jupyter-resize.js'></script>
+    {#
+    <script src='{{resources.base_url}}voila/static/jupyter-clip.js'></script> #}
+    {# Custom css styles#}
 
-        {% set nb_title = nb.metadata.get('title', '') or resources['metadata']['name'] %}
-		<title>{{nb_title}}</title>
-		<style>
-		    .v-application * {
-		        box-sizing: border-box;
-		    }
-		</style>
-    </head>
+    <link href='{{resources.base_url}}voila/static/sepal_ui_styles.css' rel="stylesheet">
+    <link href='{{resources.base_url}}voila/static/index.css' rel="stylesheet">
+    {% if resources.theme == 'dark' %}
+    <link href='{{resources.base_url}}voila/static/theme-dark.css' rel="stylesheet">
+    {% else %}
+    <link href='{{resources.base_url}}voila/static/theme-light.css' rel="stylesheet">
+    {% endif %}
 
-    <body data-base-url="{{resources.base_url}}voila/">
-        <script>
-            {% include "ansi.js" %}
-            {% include "util.js" %}
-        </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <script src="{{resources.base_url}}voila/static/require.min.js"
+        integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
-        {% include "app.html" %}
-    </body>
-    {% block notebook_execute %}
-    {% endblock notebook_execute %}
-    {% set cell_count = nb.cells|length %}
-    
-    {% block cell_generator %}
-    {% endblock cell_generator %}
+    {% set nb_title = nb.metadata.get('title', '') or resources['metadata']['name'] %}
+    <title>{{nb_title}}</title>
+    <style>
+        .v-application * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
 
+<body data-base-url="{{resources.base_url}}voila/">
     <script>
-        {% if 'jupyter-vuetify/extension' in resources.nbextensions-%}
-        window.enable_nbextensions = true;
-        {% endif-%}
-        requirejs.config({
-            baseUrl: '{{resources.base_url}}voila',
-            waitSeconds: 3000,
-            map: {
-                '*': {
-                    {% if 'jupyter-vue/extension' in resources.nbextensions-%}
-                    'jupyter-vue': 'nbextensions/jupyter-vue/nodeps',
-                    {% endif-%}
-                    {% if 'jupyter-vuetify/extension' in resources.nbextensions-%}
-                    'jupyter-vuetify': 'nbextensions/jupyter-vuetify/nodeps',
-                    {% endif-%}
+        {% include "ansi.js" %}
+        {% include "util.js" %}
+    </script>
+
+    {% include "app.html" %}
+</body>
+{% block notebook_execute %}
+{% endblock notebook_execute %}
+{% set cell_count = nb.cells|length %}
+
+{% block cell_generator %}
+{% endblock cell_generator %}
+
+<script>
+    {% if 'jupyter-vuetify/extension' in resources.nbextensions -%}
+    window.enable_nbextensions = true;
+    {% endif -%}
+    requirejs.config({
+        baseUrl: '{{resources.base_url}}voila',
+        waitSeconds: 3000,
+        map: {
+            '*': {
+                    {% if 'jupyter-vue/extension' in resources.nbextensions -%}
+    'jupyter-vue': 'nbextensions/jupyter-vue/nodeps',
+        {% endif -%}
+    {% if 'jupyter-vuetify/extension' in resources.nbextensions -%}
+    'jupyter-vuetify': 'nbextensions/jupyter-vuetify/nodeps',
+        {% endif -%}
                 },
             }
         });
-        requirejs([
-            {% for ext in resources.nbextensions if ext != 'jupyter-vuetify/extension' and ext != 'jupyter-vue/extension'-%}
-                "{{resources.base_url}}voila/nbextensions/{{ ext }}.js",
-            {% endfor %}
+    requirejs([
+        {% for ext in resources.nbextensions if ext != 'jupyter-vuetify/extension' and ext != 'jupyter-vue/extension' -%}
+    "{{resources.base_url}}voila/nbextensions/{{ ext }}.js",
+        {% endfor %}
         ]);
-        requirejs(['static/voila'], (voila) => init(voila));
-    </script>
-</html>
+    requirejs(['static/voila'], (voila) => init(voila));
+</script>
 
+</html>

@@ -4,94 +4,100 @@
     <template>
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn v-bind="attrs" v-on="on" text style="position: fixed; bottom: 8px; right: 8px">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            text
+            style="position: fixed; bottom: 8px; right: 8px"
+          >
             <span>{{ statusName }}</span>
             <!-- Use dynamic class binding to change text color based on status -->
             <span :style="{ color: statusColor }"></span>
             <!-- Dynamically change icon color based on status -->
             <v-icon small right large :color="statusColor">mdi-circle</v-icon>
+            <!-- <font-awesome-icon :color="statusColor" :icon="['fas', 'bolt-lightning']" /> -->
           </v-btn>
         </template>
         <!-- Tooltip text dynamically updated based on statusName -->
         <span>{{ statusName }}</span>
       </v-tooltip>
     </template>
-    
-    
-      <v-layout v-show="loading" align-center justify-center>
-        <center>
-        <v-card style="min-width: 600px">
-          <v-progress-linear
-            indeterminate="true"
-            height="15"
-          ></v-progress-linear>
-          <!-- <v-card-title primary-title class="py-8"> -->
-            <h1>Loading the module</h1>
-            <h2>{{ loading_text }}</h2>
-          <!-- </v-card-title> -->
-          <img
-            :src="imageUrl"
-            alt="SEPAL loading"
-            align-center
-            justify-center
-          />
-          </center>
-        </v-card>
-      </v-layout>
 
-      <v-layout v-if="voilaDebugMessages.length == 0" v-show="!loading">
-        <jupyter-widget-mount-point mount-id="content">
-        </jupyter-widget-mount-point>
-      </v-layout>
-
-      <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
-        <v-card-title primary-title class="py-8">
-          <h1>Ooops! something went wrong</h1>
-        </v-card-title>
-
-        <v-card-text>
-          <template>
-            <div>
-              <!-- Alert showing the first computed property -->
-              <v-alert
-                type="error"
-                icon="mdi-bug"
-                border="left"
-                colored-border
-                width="60%"
-                align-center
-                justify-center
-              >
-                >{{summaryMessages}}
-              </v-alert>
-
-              <!-- Button to open dialog -->
-              <v-btn color="primary" @click="dialog = true">Show Details</v-btn>
-
-              <!-- Dialog showing the second computed property -->
-              <v-dialog v-model="dialog" persistent max-width="720px">
-                <v-card color="">
-                  <v-card-title>
-                    Full traceback
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="dialog = false">
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-card-title>
-                  <v-card-text>
-                    <p
-                      v-for="(msg, index) in detailedMessages"
-                      :key="index"
-                      v-html="msg"
-                      icon="mdi-bug"
-                    ></p>
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
-            </div>
-          </template>
-        </v-card-text>
+    <v-layout v-show="loading" align-center justify-center>
+      <v-card style="min-width: 600px">
+        <v-progress-linear indeterminate="true" height="15"></v-progress-linear>
+        <!-- <v-card-title primary-title class="py-8"> -->
+        <h1>Loading the module</h1>
+        <h2>{{ loading_text }}</h2>
+        <!-- </v-card-title> -->
+        <img
+          :src="imageUrl"
+          alt="SEPAL loading"
+          align-center
+          justify-center
+          width="250px"
+        />
       </v-card>
+    </v-layout>
+
+    <v-div
+      class="sepal-ui-container"
+      v-if="voilaDebugMessages.length == 0"
+      class="perro"
+      v-show="!loading"
+    >
+      <jupyter-widget-mount-point mount-id="content">
+      </jupyter-widget-mount-point>
+    </v-div>
+
+    <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
+      <v-card-title primary-title class="py-8">
+        <h1>Ooops! something went wrong</h1>
+      </v-card-title>
+
+      <v-card-text>
+        <template>
+          <div>
+            <!-- Alert showing the first computed property -->
+            <v-alert
+              type="error"
+              icon="mdi-bug"
+              border="left"
+              colored-border
+              width="60%"
+              align-center
+              justify-center
+            >
+              >{{summaryMessages}}
+            </v-alert>
+
+            <!-- Button to open dialog -->
+            <v-btn color="primary" @click="dialog = true">Show Details</v-btn>
+
+            <!-- Dialog showing the second computed property -->
+            <v-dialog v-model="dialog" persistent max-width="720px">
+              <v-card color="">
+                <v-card-title>
+                  Full traceback
+                  <v-spacer></v-spacer>
+                  <v-btn icon @click="dialog = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <v-card-text>
+                  <p
+                    v-for="(msg, index) in detailedMessages"
+                    :key="index"
+                    v-html="msg"
+                    icon="mdi-bug"
+                  ></p>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+          </div>
+        </template>
+      </v-card-text>
+    </v-card>
   </v-app>
 </div>
 
@@ -132,30 +138,30 @@
       },
       statusColor() {
         switch (this.kernel_status) {
-          case 'busy':
-            return 'orange';
-          case 'dead':
-            return 'red';
-          case 'idle':
-            return 'green';
+          case "busy":
+            return "orange";
+          case "dead":
+            return "red";
+          case "idle":
+            return "green";
           default:
-            return 'grey'; // Default color
+            return "grey"; // Default color
         }
       },
       // Compute the status name for the tooltip
       statusName() {
         switch (this.kernel_status) {
-          case 'busy':
-            return 'Busy';
-          case 'dead':
-            return 'Disconnected';
-          case 'idle':
-            return 'Ready';
+          case "busy":
+            return "Busy";
+          case "dead":
+            return "Disconnected";
+          case "idle":
+            return "Ready";
           default:
-            return 'Unknown'; // Default status name
+            return "Unknown"; // Default status name
         }
       },
-
     },
   });
 </script>
+{% endraw -%}

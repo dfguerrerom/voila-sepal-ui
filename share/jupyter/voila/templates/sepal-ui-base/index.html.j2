@@ -32,9 +32,6 @@
 {% if output.output_type == 'error' %}
 {# Create a console log #}
 <script>
-    console.log({{ cell.execution_count }})
-    console.log({{ output }})
-    console.log(window['voilaDebugMessages'])
     if (!window['voilaDebugMessages']) {
         window.voilaDebugMessages = [];
     }
@@ -44,11 +41,10 @@
         {% for line in output.traceback %}
     `{{ line | ansi2html | replace('`', '\\`') }}`,
         {% endfor %}
-                            ],
+                        ],
     evalue: `{{ output.ename }}: {{ output.evalue | ansi2html | replace('`', '\\`') }}`
                         })
     console.log(window['voilaDebugMessages'])
-
 </script>
 {% endif %}
 {% endfor %}
