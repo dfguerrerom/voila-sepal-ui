@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Customization of the provided css from the different libs used by sepal_ui
  */
 
@@ -125,6 +125,23 @@ nav.v-navigation-drawer {
   padding: 0px !important;
 }
 
-.special-style {
-  min-height: 100vh !important;
+html {
+  /* font sizes in vuetify are in rem units. To get the correct font size, the html tag has to have a font size of 
+     * 16px */
+  font-size: 16px;
+}
+
+
+
+.v-application--wrap {
+  /* disable min-height: 100vh set by vuetify */
+  min-height: unset !important;
+}
+
+.sepal-ui-container {
+  min-height: 100vh;
+}
+
+#app > div[data-app="true"] {
+  min-height: 100vh;
 }
