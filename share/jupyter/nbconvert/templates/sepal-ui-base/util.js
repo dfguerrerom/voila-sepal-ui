@@ -142,7 +142,6 @@ function injectStatusInterceptor(kernel) {
     const _original_update_status = kernel._updateStatus.bind(kernel)
 
     kernel._updateStatus = ((state) => {
-        console.log(state)
         app.$data.kernel_status = state;
         return _original_update_status(state);
     })
@@ -166,6 +165,7 @@ window.init = async (voila) => {
     define("vuetify", [], { framework: app.$vuetify });
     
     const kernel = await voila.connectKernel();
+    window.kernel = kernel;
     injectDebugMessageInterceptor(kernel);
     injectStatusInterceptor(kernel);
     window.addEventListener('beforeunload', () => kernel.shutdown());
@@ -189,33 +189,52 @@ window.init = async (voila) => {
 
 
     /* Workaround: prevent the theme from being overwritten by ipyvuetify initialization */
-    let original;
-    if (themeIsdark !== undefined) {
-        original = app.$vuetify;
-        app.$vuetify = {
-            theme: {
-                dark: false,
-                themes: original.theme.themes
-            }
-        };
-    }
+    // let original;
+    // if (themeIsdark !== undefined) {
+    //     original = app.$vuetify;
+    //     app.$vuetify = {
+    //         theme: {
+    //             dark: false,
+    //             themes: original.theme.themes
+    //         }
+    //     };
+    // }
 
     app.$data.loadingPercentage = -1;
     app.$data.loading_text = 'Loading the app';
 
     await widgetManager.build_widgets();
+    // console.log("widgetManager",widgetManager._models)
+
+    // for each model, print the name and the mount_id
+
+
 
     await Promise.all(Object.values(widgetManager._models)
         .map(async (modelPromise) => {
             const model = await modelPromise;
-            if (model.name === 'ThemeModel' && themeIsdark !== undefined) {
-                model.set('dark', themeIsdark);
-                model.save_changes();
-                app.$vuetify = original;
+            // if (model.name === 'ThemeModel' && themeIsdark !== undefined) {
+            //     model.set('dark', themeIsdark);
+            //     model.save_changes();
+            //     app.$vuetify = original;
+            // }
+
+            if (model.name == "HtmlModel" || model.name == "VuetifyTemplateModel") {
+                console.log("#####", model)
+                console.log('Special', model.name, model.get('_view_name'))
+                console.log("View_name", model.name, model.get('_view_name'), "meta", model.get('_metadata'))
+
+                const view = await widgetManager.create_view(model);
+                provideWidget("content", view);
             }
+            
             const meta = model.get('_metadata');
             const mountId = meta && meta.mount_id;
+            
             if (mountId && model.get('_view_name')) {
+
+                console.log("#####RENDERED", model)
+
                 const view = await widgetManager.create_view(model);
                 provideWidget(mountId, view);
             }
