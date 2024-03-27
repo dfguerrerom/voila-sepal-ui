@@ -145,3 +145,10 @@ html {
 #app > div[data-app="true"] {
   min-height: 100vh;
 }
+/* https://github.com/widgetti/ipyvuetify/blob/38c9d575090f88beb6bd6b5c4dbdec47783ed4e7/js/src/styles.css#L1-L5 */
+html {
+  /* font sizes in vuetify are in rem units. To get the correct font size, the html tag has to have a font size of 
+     * 16px */
+  font-size: 16px;
+  overflow: auto;
+}
