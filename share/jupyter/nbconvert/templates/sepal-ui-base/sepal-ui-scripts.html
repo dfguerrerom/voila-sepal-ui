@@ -1,0 +1,25 @@
+{% raw -%}
+<div id="sepal-ui-scripts">
+  <sepal-ui-placeholder
+    :v-show="display"
+    mount-id="sepal-ui-scripts"
+  ></sepal-ui-placeholder>
+</div>
+
+<script>
+  var sepal_ui_scripts = new Vue({
+    vuetify: new Vuetify({
+      theme: { dark: true },
+    }),
+    el: "#sepal-ui-scripts",
+    mounted() {
+      document.querySelector("#sepal-ui-scripts").removeAttribute("style");
+    },
+    data() {
+      return {
+        display: false,
+      };
+    },
+  });
+</script>
+{% endraw -%}

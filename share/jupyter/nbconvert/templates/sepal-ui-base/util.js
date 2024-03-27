@@ -41,13 +41,9 @@ Vue.component('jupyter-widget-mount-point', {
     }
 });
 
+
 const widgetResolveFns = {};
 const widgetPromises = {};
-
-
-// // Global debug flag
-let debug = true;
-
 
 function provideWidget(mountId, widgetView) {
     if (widgetResolveFns[mountId]) {
@@ -62,6 +58,54 @@ function requestWidget(mountId) {
         widgetPromises[mountId] = new Promise(resolve => widgetResolveFns[mountId] = resolve);
     }
     return widgetPromises[mountId];
+}
+
+// For the script templates
+Vue.component('sepal-ui-placeholder', {
+    // this component will be used to render the VuetifyTemplates that contain scripts
+    data() {
+        return {
+            renderFn: undefined,
+            elem: undefined,
+            widgets: [],
+        }
+    },
+    props: ['mount-id'],
+    created() {
+        requestWidget(this.mountId);
+    },
+    mounted() {
+        requestWidget(this.mountId)
+            .then(widgetViews => { // Expecting an array of views
+                this.widgets = widgetViews.filter(widgetView => 
+                    ['VuetifyView', 'VuetifyTemplateView'].includes(widgetView.model.get('_view_name'))
+                ).map(widgetView => createElement => widgetView.vueRender(createElement));
+            });
+    },
+    render(createElement) {
+        if (this.widgets.length) {
+            return createElement('div', this.widgets.map(renderFn => renderFn(createElement)));
+        }
+    }
+});
+
+const widgetResolveFnsTemplate = {};
+const widgetPromisesTemplate = {};
+
+function provideWidgetTemplate(mountId, widgetView) {
+    if (!widgetResolveFnsTemplate[mountId]) {
+        widgetResolveFnsTemplate[mountId] = [];
+    }
+    widgetResolveFnsTemplate[mountId].push(widgetView);
+    widgetPromises[mountId] = Promise.resolve(widgetResolveFnsTemplate[mountId]);
+}
+
+
+function requestWidgetTemplate(mountId) {
+    if (!widgetPromisesTemplate[mountId]) {
+        widgetPromisesTemplate[mountId] = new Promise(resolve => widgetResolveFnsTemplate[mountId] = resolve);
+    }
+    return widgetPromisesTemplate[mountId];
 }
 
 function getWidgetManager(voila, kernel) {
@@ -118,6 +162,7 @@ function getWidgetManager(voila, kernel) {
         }
     }
 }
+debug = true;
 
 function injectDebugMessageInterceptor(kernel) {
     const _original_handle_message = kernel._handleMessage.bind(kernel)
@@ -127,13 +172,15 @@ function injectDebugMessageInterceptor(kernel) {
                 cell: '_',
                 traceback: msg.content.traceback.map(line => ansiSpan(_.escape(line)))
             });
-        } else if(msg.msg_type === 'stream' && (msg.content['name'] === 'stdout' || msg.content['name'] === 'stderr')) {
-            app.$data.voilaDebugMessages.push({
-                cell: '_',
-                name: msg.content.name,
-                text: msg.content.text
-            });
-        }
+        } 
+        
+        // else if(msg.msg_type === 'stream' && (msg.content['name'] === 'stdout' || msg.content['name'] === 'stderr')) {
+        //     app.$data.voilaDebugMessages.push({
+        //         cell: '_',
+        //         name: msg.content.name,
+        //         text: msg.content.text
+        //     });
+        // }
                 return _original_handle_message(msg);
     })
 }
@@ -163,7 +210,7 @@ if (window.location.search) {
 window.init = async (voila) => {
         define("vue", [], () => Vue);
     define("vuetify", [], { framework: app.$vuetify });
-    
+  
     const kernel = await voila.connectKernel();
     window.kernel = kernel;
     injectDebugMessageInterceptor(kernel);
@@ -204,12 +251,6 @@ window.init = async (voila) => {
     app.$data.loading_text = 'Loading the app';
 
     await widgetManager.build_widgets();
-    // console.log("widgetManager",widgetManager._models)
-
-    // for each model, print the name and the mount_id
-
-
-
     await Promise.all(Object.values(widgetManager._models)
         .map(async (modelPromise) => {
             const model = await modelPromise;
@@ -218,14 +259,15 @@ window.init = async (voila) => {
             //     model.save_changes();
             //     app.$vuetify = original;
             // }
-
-            if (model.name == "HtmlModel" || model.name == "VuetifyTemplateModel") {
-                console.log("#####", model)
-                console.log('Special', model.name, model.get('_view_name'))
-                console.log("View_name", model.name, model.get('_view_name'), "meta", model.get('_metadata'))
-
-                const view = await widgetManager.create_view(model);
-                provideWidget("content", view);
+            
+            // this is to put VuetifyTemplates in the DOM
+            //  https://github.com/widgetti/ipyvuetify/issues/308
+            if (model.name == "VuetifyTemplateModel" && model.attributes.template) {
+                if (model.attributes.template.includes('sepal-ui-script')) {
+                    const view = await widgetManager.create_view(model);
+                    console.log("providing template")
+                    provideWidgetTemplate('sepal-ui-scripts', view);
+                }
             }
             
             const meta = model.get('_metadata');
@@ -243,6 +285,9 @@ window.init = async (voila) => {
     app.$data.loadingPercentage = 0;
     app.$data.loading_text = 'Done';
     app.$data.loading = false;
+    sepal_ui_scripts.$data.display = true;
+    debug = false;
+
     removeInterferingStyleTags();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -250,11 +295,6 @@ window.init = async (voila) => {
         app.$data.voilaDebugMessages = window['voilaDebugMessages'];
     }
     setTimeout(voila.renderMathJax);
-
-    // I want to stop the debug messages after the app is loaded, they 
-    // will be handled by the app from now on
-    debug = false;
-
 };
 
 function removeInterferingStyleTags() {
