@@ -25,18 +25,25 @@
 
     <v-layout v-show="loading" align-center justify-center>
       <v-card style="min-width: 600px">
-        <v-progress-linear indeterminate="true" height="15"></v-progress-linear>
-        <!-- <v-card-title primary-title class="py-8"> -->
-        <h1>Loading the module</h1>
-        <h2>{{ loading_text }}</h2>
-        <!-- </v-card-title> -->
-        <img
-          :src="imageUrl"
-          alt="SEPAL loading"
-          align-center
-          justify-center
-          width="250px"
-        />
+        <v-progress-linear indeterminate="true" height="8"></v-progress-linear>
+        <v-card-text
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <v-card-title>
+            <h2>Loading the module</h2>
+          </v-card-title>
+
+          <v-card-subtitle>
+            <h3>{{ loading_text }}</h3>
+          </v-card-subtitle>
+          <img
+            :src="imageUrl"
+            alt="SEPAL loading"
+            align-center
+            justify-center
+            width="250px"
+          />
+        </v-card-text>
       </v-card>
     </v-layout>
 
@@ -104,7 +111,38 @@
 <script>
   var app = new Vue({
     vuetify: new Vuetify({
-      theme: { dark: true },
+      theme: {
+        dark: true,
+        themes: {
+          // These are the default colors from sepal_ui
+          light: {
+            primary: "#1976D2",
+            accent: "#82B1FF",
+            secondary: "#424242",
+            success: "#4CAF50",
+            info: "#2196F3",
+            warning: "#FB8C00",
+            error: "#FF5252",
+            main: "#2e7d32",
+            darker: "#005005",
+            bg: "#FFFFFF",
+            menu: "#FFFFFF",
+          },
+          dark: {
+            primary: "#b3842e",
+            accent: "#a1458e",
+            secondary: "#324a88",
+            success: "#3f802a",
+            info: "#79b1c9",
+            warning: "#b8721d",
+            error: "#a63228",
+            main: "#24221f",
+            darker: "#1a1a1a",
+            bg: "#121212",
+            menu: "#424242",
+          },
+        },
+      },
     }),
     el: "#app",
     mounted() {
