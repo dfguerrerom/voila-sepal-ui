@@ -1,6 +1,32 @@
 {% raw -%}
 <div id="app" style="display: none">
   <v-app>
+    <kernel-status kernel_status="kernel_status"></kernel-status>
+
+    <loading-card
+      v-show="loading"
+      loading="loading"
+      loading_text="loading_text"
+      base_url="base_url"
+    ></loading-card>
+
+    <error-card voilaDebugMessages="voilaDebugMessages"></error-card>
+
+    <v-div
+      class="sepal-ui-container"
+      v-if="voilaDebugMessages.length == 0"
+      class="perro"
+      v-show="!loading"
+    >
+      <jupyter-widget-mount-point mount-id="content">
+      </jupyter-widget-mount-point>
+    </v-div>
+  </v-app>
+</div>
+
+<script>
+  Vue.component("kernel-status", {
+    template: `
     <template>
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -22,144 +48,16 @@
         <span>{{ statusName }}</span>
       </v-tooltip>
     </template>
-    <loading-card
-      v-show="loading"
-      loading="loading"
-      loading_text="loading_text"
-      imageUrl="imageUrl"
-    ></loading-card>
-
-    <v-div
-      class="sepal-ui-container"
-      v-if="voilaDebugMessages.length == 0"
-      class="perro"
-      v-show="!loading"
-    >
-      <jupyter-widget-mount-point mount-id="content">
-      </jupyter-widget-mount-point>
-    </v-div>
-
-    <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
-      <v-card-title primary-title class="py-8">
-        <h1>Ooops! something went wrong</h1>
-      </v-card-title>
-
-      <v-card-text>
-        <template>
-          <div>
-            <!-- Alert showing the first computed property -->
-            <v-alert
-              type="error"
-              icon="mdi-bug"
-              border="left"
-              colored-border
-              width="60%"
-              align-center
-              justify-center
-            >
-              >{{summaryMessages}}
-            </v-alert>
-
-            <!-- Button to open dialog -->
-            <v-btn color="primary" @click="dialog = true">Show Details</v-btn>
-
-            <!-- Dialog showing the second computed property -->
-            <v-dialog v-model="dialog" persistent max-width="720px">
-              <v-card color="">
-                <v-card-title>
-                  Full traceback
-                  <v-spacer></v-spacer>
-                  <v-btn icon @click="dialog = false">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </v-card-title>
-                <v-card-text>
-                  <p
-                    v-for="(msg, index) in detailedMessages"
-                    :key="index"
-                    v-html="msg"
-                    icon="mdi-bug"
-                  ></p>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </div>
-        </template>
-      </v-card-text>
-    </v-card>
-  </v-app>
-</div>
-
-<script>
-  // import LoadingCard from "@/components/LoadingCard";
-
-  var app = new Vue({
-    el: "#app",
-    components: {},
-    vuetify: new Vuetify({
-      theme: {
-        dark: true,
-        themes: {
-          // These are the default colors from sepal_ui
-          light: {
-            primary: "#1976D2",
-            accent: "#82B1FF",
-            secondary: "#424242",
-            success: "#4CAF50",
-            info: "#2196F3",
-            warning: "#FB8C00",
-            error: "#FF5252",
-            main: "#2e7d32",
-            darker: "#005005",
-            bg: "#FFFFFF",
-            menu: "#FFFFFF",
-          },
-          dark: {
-            primary: "#b3842e",
-            accent: "#a1458e",
-            secondary: "#324a88",
-            success: "#3f802a",
-            info: "#79b1c9",
-            warning: "#b8721d",
-            error: "#a63228",
-            main: "#24221f",
-            darker: "#1a1a1a",
-            bg: "#121212",
-            menu: "#424242",
-          },
-        },
-      },
-    }),
-    mounted() {
-      document.querySelector("#app").removeAttribute("style");
-    },
+    `,
     data() {
       return {
-        loading_text: "0%",
-        loadingPercentage: -1,
-        loading: true,
-        title: "",
+        kernel_status: "asdf",
         voilaDebugMessages: [],
-        base_url: "",
-        dialog: false,
-        kernel_status: "idle",
       };
     },
     computed: {
-      imageUrl() {
-        // Assuming the Vuetify theme dark status is accessible
-        // via this.$vuetify.theme.dark
-        return this.$vuetify.theme.dark
-          ? this.base_url + "voila/static/loading_dark.gif"
-          : this.base_url + "voila/static/loading_light.gif";
-      },
-      summaryMessages() {
-        return this.voilaDebugMessages[0].evalue;
-      },
-      detailedMessages() {
-        return this.voilaDebugMessages[0].traceback;
-      },
       statusColor() {
+        console.log(this.kernel_status);
         switch (this.kernel_status) {
           case "busy":
             return "orange";
@@ -173,6 +71,8 @@
       },
       // Compute the status name for the tooltip
       statusName() {
+        console.log(this.kernel_status);
+
         switch (this.kernel_status) {
           case "busy":
             return "Busy";
@@ -217,7 +117,134 @@
       return {
         loading_text: "0%",
         loading: true,
-        imageUrl: "https://cdn.sepal.io/images/sepal-loading.gif",
+        base_url: "",
+      };
+    },
+    computed: {
+      imageUrl() {
+        // Assuming the Vuetify theme dark status is accessible
+        // via this.$vuetify.theme.dark
+        return this.$vuetify.theme.dark
+          ? this.base_url + "voila/static/loading_dark.gif"
+          : this.base_url + "voila/static/loading_light.gif";
+      },
+    },
+  });
+
+  Vue.component("error-card", {
+    template: `
+    <v-card class="ma-2" v-if="voilaDebugMessages.length > 0">
+      <v-card-title primary-title class="py-8">
+        <h1>Ooops! something went wrong</h1>
+      </v-card-title>
+      <v-card-text>
+        <template>
+          <div>
+            <!-- Alert showing the first computed property -->
+            <v-alert
+              type="error"
+              icon="mdi-bug"
+              border="left"
+              colored-border
+              width="60%"
+              align-center
+              justify-center
+            >
+              >{{summaryMessages}}
+            </v-alert>
+
+            <!-- Button to open dialog -->
+            <v-btn color="primary" @click="dialog = true">Show Details</v-btn>
+
+            <!-- Dialog showing the second computed property -->
+            <v-dialog v-model="dialog" persistent max-width="720px">
+              <v-card color="">
+                <v-card-title>
+                  Full traceback
+                  <v-spacer></v-spacer>
+                  <v-btn icon @click="dialog = false">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <v-card-text>
+                  <p
+                    v-for="(msg, index) in detailedMessages"
+                    :key="index"
+                    v-html="msg"
+                    icon="mdi-bug"
+                  ></p>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+          </div>
+        </template>
+      </v-card-text>
+    </v-card>
+    `,
+    data() {
+      return {
+        voilaDebugMessages: [],
+      };
+    },
+    computed: {
+      summaryMessages() {
+        return this.voilaDebugMessages[0].evalue;
+      },
+      detailedMessages() {
+        return this.voilaDebugMessages[0].traceback;
+      },
+    },
+  });
+
+  var app = new Vue({
+    el: "#app",
+    vuetify: new Vuetify({
+      theme: {
+        dark: true,
+        themes: {
+          // These are the default colors from sepal_ui
+          light: {
+            primary: "#1976D2",
+            accent: "#82B1FF",
+            secondary: "#424242",
+            success: "#4CAF50",
+            info: "#2196F3",
+            warning: "#FB8C00",
+            error: "#FF5252",
+            main: "#2e7d32",
+            darker: "#005005",
+            bg: "#FFFFFF",
+            menu: "#FFFFFF",
+          },
+          dark: {
+            primary: "#b3842e",
+            accent: "#a1458e",
+            secondary: "#324a88",
+            success: "#3f802a",
+            info: "#79b1c9",
+            warning: "#b8721d",
+            error: "#a63228",
+            main: "#24221f",
+            darker: "#1a1a1a",
+            bg: "#121212",
+            menu: "#424242",
+          },
+        },
+      },
+    }),
+    mounted() {
+      document.querySelector("#app").removeAttribute("style");
+    },
+    data() {
+      return {
+        loading_text: "ss0%",
+        loadingPercentage: -1,
+        loading: true,
+        title: "",
+        voilaDebugMessages: [],
+        dialog: false,
+        kernel_status: "idle",
+        base_url: "",
       };
     },
   });
