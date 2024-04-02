@@ -34,13 +34,11 @@
             v-bind="attrs"
             v-on="on"
             text
+            icon
             style="position: fixed; bottom: 8px; right: 8px; z-index: 9999"
           >
-            <span>{{ statusName }}</span>
-            <!-- Use dynamic class binding to change text color based on status -->
-            <span :style="{ color: statusColor }"></span>
             <!-- Dynamically change icon color based on status -->
-            <v-icon small right large :color="statusColor">mdi-circle</v-icon>
+            <v-icon small :color="statusColor">mdi-circle</v-icon>
             <!-- <font-awesome-icon :color="statusColor" :icon="['fas', 'bolt-lightning']" /> -->
           </v-btn>
         </template>
