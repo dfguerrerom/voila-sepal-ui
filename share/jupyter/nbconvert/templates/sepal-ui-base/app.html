@@ -1,6 +1,32 @@
 {% raw -%}
 <div id="app" style="display: none">
   <v-app>
+    <kernel-status :kernel_status="kernel_status"></kernel-status>
+
+    <loading-card
+      v-show="loading"
+      :loading_text="loading_text"
+      :base_url="base_url"
+    ></loading-card>
+
+    <v-div
+      v-if="voilaDebugMessages.length == 0"
+      v-show="!loading"
+      class="sepal-ui-container"
+    >
+      <jupyter-widget-mount-point mount-id="content">
+      </jupyter-widget-mount-point>
+    </v-div>
+    <error-card
+      v-if="voilaDebugMessages.length > 0"
+      :voila_debug_messages="voilaDebugMessages"
+    ></error-card>
+  </v-app>
+</div>
+
+<script>
+  Vue.component("kernel-status", {
+    template: `
     <template>
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -22,7 +48,44 @@
         <span>{{ statusName }}</span>
       </v-tooltip>
     </template>
+    `,
+    props: {
+      kernel_status: {
+        type: String,
+        default: "idle",
+      },
+    },
+    computed: {
+      statusColor() {
+        switch (this.kernel_status) {
+          case "busy":
+            return "orange";
+          case "dead":
+            return "red";
+          case "idle":
+            return "green";
+          default:
+            return "grey"; // Default color
+        }
+      },
+      // Compute the status name for the tooltip
+      statusName() {
+        switch (this.kernel_status) {
+          case "busy":
+            return "Busy";
+          case "dead":
+            return "Disconnected";
+          case "idle":
+            return "Ready";
+          default:
+            return "Unknown"; // Default status name
+        }
+      },
+    },
+  });
 
+  Vue.component("loading-card", {
+    template: `
     <v-layout v-show="loading" align-center justify-center>
       <v-card style="min-width: 600px">
         <v-progress-linear indeterminate="true" height="8"></v-progress-linear>
@@ -44,24 +107,57 @@
             width="250px"
           />
         </v-card-text>
+        <v-progress-linear indeterminate="true" height="8"></v-progress-linear>
+        <v-card-text
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <v-card-title>
+            <h2>Loading the module</h2>
+          </v-card-title>
+
+          <v-card-subtitle>
+            <h3>{{ loading_text }}</h3>
+          </v-card-subtitle>
+          <img
+            :src="imageUrl"
+            alt="SEPAL loading"
+            align-center
+            justify-center
+            width="250px"
+          />
+        </v-card-text>
       </v-card>
     </v-layout>
+  `,
+    data() {
+      return {
+        base_url: "/",
+      };
+    },
+    props: ["loading_text", "loading"],
+    computed: {
+      imageUrl() {
+        // Assuming the Vuetify theme dark status is accessible
+        // via this.$vuetify.theme.dark
+        return this.$vuetify.theme.dark
+          ? this.base_url + "voila/static/loading_dark.gif"
+          : this.base_url + "voila/static/loading_light.gif";
+      },
+    },
+    watch: {
+      voilaDebugMessages(newVal, oldVal) {
+        console.log("voilaDebugMessages changed:", newVal);
+      },
+    },
+  });
 
-    <v-div
-      class="sepal-ui-container"
-      v-if="voilaDebugMessages.length == 0"
-      class="perro"
-      v-show="!loading"
-    >
-      <jupyter-widget-mount-point mount-id="content">
-      </jupyter-widget-mount-point>
-    </v-div>
-
-    <v-card v-if="voilaDebugMessages.length > 0" class="ma-2">
+  Vue.component("error-card", {
+    template: `
+    <div>
+    <v-card class="ma-2">
       <v-card-title primary-title class="py-8">
         <h1>Ooops! something went wrong</h1>
       </v-card-title>
-
       <v-card-text>
         <template>
           <div>
@@ -75,7 +171,7 @@
               align-center
               justify-center
             >
-              >{{summaryMessages}}
+              >{{ summaryMessages }}
             </v-alert>
 
             <!-- Button to open dialog -->
@@ -105,11 +201,33 @@
         </template>
       </v-card-text>
     </v-card>
-  </v-app>
-</div>
+    </div>
+    `,
+    data() {
+      return {
+        dialog: false,
+      };
+    },
+    props: {
+      voila_debug_messages: {
+        type: Array,
+      },
+    },
+    computed: {
+      TestProp() {
+        return this.test_prop;
+      },
+      summaryMessages() {
+        return this.voila_debug_messages[0].evalue;
+      },
+      detailedMessages() {
+        return this.voila_debug_messages[0].traceback;
+      },
+    },
+  });
 
-<script>
   var app = new Vue({
+    el: "#app",
     vuetify: new Vuetify({
       theme: {
         dark: true,
@@ -144,62 +262,21 @@
         },
       },
     }),
-    el: "#app",
     mounted() {
       document.querySelector("#app").removeAttribute("style");
     },
     data() {
       return {
-        loading_text: "0%",
+        loading_text: "99990%",
         loadingPercentage: -1,
         loading: true,
         title: "",
         voilaDebugMessages: [],
-        base_url: "",
-        dialog: false,
         kernel_status: "idle",
+        base_url: "",
       };
-    },
-    computed: {
-      imageUrl() {
-        // Assuming the Vuetify theme dark status is accessible
-        // via this.$vuetify.theme.dark
-        return this.$vuetify.theme.dark
-          ? this.base_url + "voila/static/loading_dark.gif"
-          : this.base_url + "voila/static/loading_light.gif";
-      },
-      summaryMessages() {
-        return this.voilaDebugMessages[0].evalue;
-      },
-      detailedMessages() {
-        return this.voilaDebugMessages[0].traceback;
-      },
-      statusColor() {
-        switch (this.kernel_status) {
-          case "busy":
-            return "orange";
-          case "dead":
-            return "red";
-          case "idle":
-            return "green";
-          default:
-            return "grey"; // Default color
-        }
-      },
-      // Compute the status name for the tooltip
-      statusName() {
-        switch (this.kernel_status) {
-          case "busy":
-            return "Busy";
-          case "dead":
-            return "Disconnected";
-          case "idle":
-            return "Ready";
-          default:
-            return "Unknown"; // Default status name
-        }
-      },
     },
   });
 </script>
+
 {% endraw -%}
