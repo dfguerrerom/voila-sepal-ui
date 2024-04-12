@@ -248,7 +248,6 @@ window.init = async (voila) => {
     // }
 
     app.$data.loadingPercentage = -1;
-    app.$data.loading_text = 'Loading the app';
 
     await widgetManager.build_widgets();
     await Promise.all(Object.values(widgetManager._models)

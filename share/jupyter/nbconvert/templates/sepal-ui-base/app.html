@@ -7,6 +7,7 @@
       v-show="loading"
       :loading_text="loading_text"
       :base_url="base_url"
+      :title="title"
     ></loading-card>
 
     <v-div
@@ -91,26 +92,7 @@
           style="display: flex; flex-direction: column; align-items: center"
         >
           <v-card-title>
-            <h2>Loading the module</h2>
-          </v-card-title>
-
-          <v-card-subtitle>
-            <h3>{{ loading_text }}</h3>
-          </v-card-subtitle>
-          <img
-            :src="imageUrl"
-            alt="SEPAL loading"
-            align-center
-            justify-center
-            width="250px"
-          />
-        </v-card-text>
-        <v-progress-linear indeterminate="true" height="8"></v-progress-linear>
-        <v-card-text
-          style="display: flex; flex-direction: column; align-items: center"
-        >
-          <v-card-title>
-            <h2>Loading the module</h2>
+            <h2>{{ title }}</h2>
           </v-card-title>
 
           <v-card-subtitle>
@@ -132,7 +114,7 @@
         base_url: "/",
       };
     },
-    props: ["loading_text", "loading"],
+    props: ["loading_text", "loading", "title"],
     computed: {
       imageUrl() {
         // Assuming the Vuetify theme dark status is accessible
@@ -265,13 +247,14 @@
     },
     data() {
       return {
-        loading_text: "99990%",
+        loading_text: "0%",
         loadingPercentage: -1,
         loading: true,
         title: "",
         voilaDebugMessages: [],
         kernel_status: "idle",
         base_url: "",
+        title: "",
       };
     },
   });
