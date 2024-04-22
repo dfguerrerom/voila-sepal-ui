@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voila-sepal-ui"
+authors = [{name = "Daniel Guerrero", email = "dfgm2006@gmail.com"}]
+description = "A sepal-ui template for Voila"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+requires-python = ">=3.8"
+keywords = ["UI", "voila", "sepal"]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "voila>=0.2.0,<0.5",
+]
+version = "0.0.0"
+
+[project.urls]
+Homepage = "https://github.com/dfguerrerom/voila-sepal-ui"
+Download = "https://github.com/dfguerrerom/voila-sepal-ui/archive/v_${metadata:version}.tar.gz"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=2.18.0",
+    "commitizen",
+    "tomli",
+    "jupyter",
+    "voila>=0.2.0,<0.5",
+]
+
+[tool.setuptools]
+include-package-data = true
+license-files = ["LICENSE.txt"]
+
+[tool.setuptools.package-data]
+voila-sepal-ui = [
+    "share/jupyter/nbconvert/templates/sepal-ui-base/**/*",
+    "share/jupyter/voila/templates/sepal-ui-base/*",
+]
+
+[tool.commitizen]
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+tag_format = "v$major.$minor.$patch$prerelease"
+update_changelog_on_bump = false
+version = "0.0.0"
+version_files = [
+    "pyproject.toml:version",
+]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
