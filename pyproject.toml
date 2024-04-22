@@ -40,13 +40,6 @@ dev = [
 
 [tool.setuptools]
 include-package-data = true
-license-files = ["LICENSE.txt"]
-
-[tool.setuptools.package-data]
-voila-sepal-ui = [
-    "share/jupyter/nbconvert/templates/sepal-ui-base/**/*",
-    "share/jupyter/voila/templates/sepal-ui-base/*",
-]
 
 [tool.commitizen]
 changelog_file = "CHANGELOG.md"
