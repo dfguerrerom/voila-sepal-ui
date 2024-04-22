@@ -27,13 +27,14 @@ class DevelopCmd(develop):
                 os.remove(target)
             except:  # noqa: E722
                 pass
-
             print(rel_source, "->", target)
             os.symlink(rel_source, target)
 
         super(DevelopCmd, self).run()
 
 
+# WARNING: all files generates during setup.py will not
+# end up in the source distribution
 data_files = []
 # Add all the templates
 for dirpath, dirnames, filenames in os.walk("share/jupyter/"):
@@ -42,8 +43,18 @@ for dirpath, dirnames, filenames in os.walk("share/jupyter/"):
             (dirpath, [os.path.join(dirpath, filename) for filename in filenames])
         )
 
+
 setup(
+    name="voila-sepal-ui",
+    version="0.0.1",
+    description="A sepal-ui template for Voila",
     data_files=data_files,
+    install_requires=["voila>=0.2.0,<0.5"],
+    include_package_data=True,
+    author="Daniel Guerrero Machado",
+    author_email="dfgm2006@gmail.com",
+    url="https://github.com/dfguerrerom/voila-sepal-ui",
+    keywords=["ipython", "jupyter", "widgets", "voila"],
     cmdclass={
         "develop": DevelopCmd,
     },

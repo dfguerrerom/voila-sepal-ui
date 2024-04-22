@@ -1,0 +1,3 @@
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
