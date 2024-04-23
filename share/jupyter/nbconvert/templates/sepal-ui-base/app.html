@@ -95,8 +95,8 @@
             <h2>{{ title }}</h2>
           </v-card-title>
 
-        <v-card-subtitle>
-            <h3>{{ loading_text }}</h3>
+        <v-card-subtitle style="margin-top: -8px">
+            <h3 class="m">{{ loading_text }}</h3>
           </v-card-subtitle>
           <img
             v-if="imageUrl" 
@@ -249,7 +249,7 @@
     },
     data() {
       return {
-        loading_text: "0%",
+        loading_text: "Loading the app...",
         loadingPercentage: -1,
         loading: true,
         title: "",

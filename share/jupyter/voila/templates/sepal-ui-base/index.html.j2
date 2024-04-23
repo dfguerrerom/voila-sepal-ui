@@ -16,7 +16,7 @@
 
     var voila_process = function (cell_index, cell_count) {
         const percentage = Math.round((cell_index / cell_count) * 100);
-        const loading_text = `${percentage}%`
+        const loading_text = `Loading the app: ${percentage}...%`
         app.loading_text = loading_text
         app.loadingPercentage = percentage
         app.debug = true
