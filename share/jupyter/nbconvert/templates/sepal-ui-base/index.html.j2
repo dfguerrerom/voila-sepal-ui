@@ -9,7 +9,6 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
     <link href='https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css' rel="stylesheet">
     {# Custom sepal_ui scripts #}
-    <script src='{{resources.base_url}}voila/static/jupyter-resize.js'></script>
     <link href='{{resources.base_url}}voila/static/sepal_ui_styles.css' rel="stylesheet">
     <link href='{{resources.base_url}}voila/static/index.css' rel="stylesheet">
     {% if resources.theme == 'dark' %}
@@ -41,6 +40,10 @@
     </script>
 
     {% include "app.html" %}
+
+    <script>
+        app.baseUrl = '{{resources.base_url}}voila/';
+    </script>
 </body>
 {% block notebook_execute %}
 {% endblock notebook_execute %}
