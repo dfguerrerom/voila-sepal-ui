@@ -1,0 +1,34 @@
+name: Upload Python Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+
+      - name: Install dependencies
+        run: pip install setuptools wheel twine build
+
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python setup.py sdist
+          twine upload dist/*
+
+      - name: merge in release
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          message: ":rocket: ${{  github.ref_name }}"
+          from_branch: main
+          target_branch: release
+          github_token: ${{ github.token }}
