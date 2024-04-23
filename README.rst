@@ -1,3 +1,5 @@
+[![Upload Python Package](https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml/badge.svg)](https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml)
+
 voila-sepal-ui
 ==============
 
