@@ -3,7 +3,4 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "0.1.0"
-version_files = [
-    "pyproject.toml:version",
-]
+version = "0.1.1"

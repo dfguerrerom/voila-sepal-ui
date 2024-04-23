@@ -46,7 +46,6 @@ for dirpath, dirnames, filenames in os.walk("share/jupyter/"):
 
 setup(
     name="voila-sepal-ui",
-    version="0.0.1",
     description="A sepal-ui template for Voila",
     data_files=data_files,
     install_requires=["voila>=0.2.0,<0.5"],
