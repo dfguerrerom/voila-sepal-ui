@@ -111,17 +111,17 @@
   `,
     data() {
       return {
-        base_url: "/",
+        base_url: "",
       };
     },
-    props: ["loading_text", "loading", "title"],
+    props: ["loading_text", "loading", "title", "base_url"],
     computed: {
       imageUrl() {
         // Assuming the Vuetify theme dark status is accessible
         // via this.$vuetify.theme.dark
         return this.$vuetify.theme.dark
-          ? this.base_url + "/static/loading_dark.gif"
-          : this.base_url + "/static/loading_light.gif";
+          ? this.base_url + "static/loading_dark.gif"
+          : this.base_url + "static/loading_light.gif";
       },
     },
     watch: {
