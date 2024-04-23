@@ -4,3 +4,6 @@ changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
 version = "0.2.0"
+version_files = [
+    "setup.py"
+]
