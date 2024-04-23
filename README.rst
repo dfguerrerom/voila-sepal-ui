@@ -1,4 +1,7 @@
-[![Upload Python Package](https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml/badge.svg)](https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml)
+.. image:: https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml/badge.svg
+   :target: https://github.com/dfguerrerom/voila-sepal-ui/actions/workflows/release.yml
+   :alt: Upload Python Package
+
 
 voila-sepal-ui
 ==============
