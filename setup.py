@@ -53,7 +53,7 @@ setup(
     author="Daniel Guerrero Machado",
     author_email="dfgm2006@gmail.com",
     url="https://github.com/dfguerrerom/voila-sepal-ui",
-    keywords=["ipython", "jupyter", "widgets", "voila"],
+    keywords=["ipython", "jupyter", "widgets", "voila", "sepal-ui"],
     cmdclass={
         "develop": DevelopCmd,
     },
