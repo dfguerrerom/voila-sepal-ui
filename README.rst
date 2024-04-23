@@ -27,3 +27,17 @@ To use the `sepal-ui` template, just pass `--template=sepal-ui-base` to the `voi
 
    voila app.ipynb --template=sepal-ui-base --show_tracebacks=True
 
+
+Alternatively, you can also set the template definition in the notebook metadata to use the `sepal-u-basei` template. Open the notebook as a text file and add the following metadata:
+
+.. code-block:: json
+
+   "voila" : {
+      "template" : "sepal-ui-base"
+   }
+
+You can also set the title of the tool by adding the following metadata:
+
+.. code-block:: json
+
+   "title" : "My geospatial-ui tool"
