@@ -48,7 +48,7 @@ setup(
     name="voila-sepal-ui",
     description="A sepal-ui template for Voila",
     data_files=data_files,
-    install_requires=["voila>=0.5.1,<0.5"],
+    install_requires=["voila>=0.4.1,<0.5"],
     version="0.5.1",
     include_package_data=True,
     author="Daniel Guerrero Machado",
